@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIBER - Blockchain Forest Monitoring</title>
+    <title>FIBER</title>
 
     <script type="module"
         src="https://js.arcgis.com/embeddable-components/4.32/arcgis-embeddable-components.esm.js"></script>
@@ -48,6 +48,8 @@
             letter-spacing: 1px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             z-index: 10;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
         }
 
         .map-container {
@@ -84,8 +86,7 @@
             font-weight: 600;
         }
 
-        select,
-        button {
+        select {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
@@ -96,9 +97,30 @@
             cursor: pointer;
         }
 
-        select:hover,
-        button:hover {
+        select:hover {
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        .live-data {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0, 114, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 5px rgba(0, 114, 255, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(0, 114, 255, 0.6);
+            }
         }
 
         .accordion {
@@ -143,6 +165,18 @@
             font-size: 14px;
             text-align: center;
             z-index: 10;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -160,16 +194,20 @@
     <div class="sidebar">
         <h3>🌍 Forest Data Overview</h3>
         <p>
-            This real-time geospatial map displays <b>global forest coverage</b> using <b>blockchain-secured data</b> for
-            accuracy and transparency.
+            This real-time geospatial map displays <b>global forest coverage</b> using <b>blockchain-secured data</b>
+            for accuracy and transparency.
         </p>
 
         <select>
             <option>🌎 Global Overview</option>
             <option>🌲 North Europe</option>
             <option>🌿 Central Europe</option>
-            <option>🌾 Sotuh Europe</option>
+            <option>🌾 South Europe</option>
         </select>
+
+        <div class="live-data" id="liveDataBox">
+            ⏳ Fetching blockchain updates...
+        </div>
 
         <div class="accordion">
             <div class="accordion-item">
@@ -200,7 +238,7 @@
     </div>
 
     <div class="footer">
-        &copy; 2025 FIBER | Securing environmental data with blockchain
+        &copy; 2025 FIBER | <b>Securing environmental data with blockchain</b>
     </div>
 
     <script>
@@ -209,6 +247,10 @@
                 this.parentElement.classList.toggle("active");
             });
         });
+
+        const liveDataBox = document.getElementById("liveDataBox");
+        const fakeData = ["🔥 Deforestation detected", "🌱 Reforestation funded", "📡 New satellite data updated", "🔗 Blockchain validation completed"];
+        setInterval(() => { liveDataBox.innerHTML = fakeData[Math.floor(Math.random() * fakeData.length)]; }, 3000);
     </script>
 
 </body>
