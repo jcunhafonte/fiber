@@ -1,258 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FIBER - G-09-2024</title>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIBER</title>
+    <script
+      type="module"
+      src="https://js.arcgis.com/embeddable-components/4.32/arcgis-embeddable-components.esm.js"
+    ></script>
 
-    <script type="module"
-        src="https://js.arcgis.com/embeddable-components/4.32/arcgis-embeddable-components.esm.js"></script>
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap">
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap"
+    />
 
     <style>
-        :root {
-            --primary-color: #0072ff;
-            --secondary-color: #00c6ff;
-            --bg-color: #0d1117;
-            --text-color: #e6edf3;
-            --glass-bg: rgba(30, 30, 30, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.2);
-        }
+      :root {
+        --primary-color: #0072ff;
+        --secondary-color: #00c6ff;
+        --bg-color: #0d1117;
+        --text-color: #e6edf3;
+        --glass-bg: rgba(30, 30, 30, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.2);
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
 
-        body,
-        html {
-            height: 100%;
-            width: 100%;
-            background-color: var(--bg-color);
-        }
+      body,
+      html {
+        height: 100%;
+        width: 100%;
+        background-color: var(--bg-color);
+      }
 
-        .header {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px;
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            z-index: 10;
-            opacity: 0;
-            animation: fadeIn 1s ease-in-out forwards;
-        }
+      .header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: linear-gradient(
+          45deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 15px;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        animation: fadeIn 1s ease-in-out forwards;
+      }
 
-        .map-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+      .map-tabs {
+        position: absolute;
+        top: 68px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 1000;
+      }
 
-        .sidebar {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            width: 350px;
-            background: var(--glass-bg);
-            padding: 20px;
-            border-radius: 12px;
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
-            z-index: 10;
-            transition: 0.3s ease-in-out;
-        }
+      .tab {
+        background: var(--glass-bg);
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        color: var(--text-color);
+        font-weight: bold;
+        border: 1px solid var(--glass-border);
+        transition: background 0.3s, color 0.3s;
+      }
 
-        .sidebar:hover {
-            box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15);
-        }
+      .tab:hover,
+      .tab.active {
+        background: var(--primary-color);
+        color: white;
+      }
 
-        h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
+      .map-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+      }
 
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            cursor: pointer;
-        }
+      #map1 {
+        display: block;
+      }
 
-        select:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+      .sidebar {
+        position: absolute;
+        top: 110px;
+        left: 20px;
+        width: 350px;
+        background: var(--glass-bg);
+        padding: 20px;
+        border-radius: 12px;
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        z-index: 10;
+        transition: 0.3s ease-in-out;
+      }
 
-        .live-data {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background: rgba(0, 114, 255, 0.1);
-            border: 1px solid var(--primary-color);
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            animation: pulse 2s infinite alternate;
-        }
+      .sidebar:hover {
+        box-shadow: 0 6px 12px rgba(255, 255, 255, 0.15);
+      }
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 5px rgba(0, 114, 255, 0.3);
-            }
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        background: var(--bg-color);
+        color: var(--text-color);
+        cursor: pointer;
+      }
 
-            100% {
-                box-shadow: 0 0 15px rgba(0, 114, 255, 0.6);
-            }
-        }
+      select:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
 
-        .accordion {
-            margin-top: 15px;
-        }
+      .live-data {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        background: rgba(0, 114, 255, 0.1);
+        border: 1px solid var(--primary-color);
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        animation: pulse 2s infinite alternate;
+      }
 
-        .accordion-item {
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
+      .accordion {
+        margin-top: 15px;
+      }
 
-        .accordion-header {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+      .accordion-item {
+        border: 1px solid var(--glass-border);
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 5px;
+      }
 
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            padding: 0 10px;
-            transition: max-height 0.4s ease-in-out, padding 0.4s;
-            font-size: 14px;
-        }
+      .accordion-header {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+      }
 
-        .accordion-item.active .accordion-content {
-            max-height: 150px;
-            padding: 10px;
-        }
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 10px;
+        transition: max-height 0.4s ease-in-out, padding 0.4s;
+        font-size: 14px;
+      }
 
-        .footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 4px;
-            font-size: 14px;
-            text-align: center;
-            z-index: 10;
-            opacity: 0;
-            animation: fadeIn 1.5s ease-in-out forwards;
-        }
+      .accordion-item.active .accordion-content {
+        max-height: 150px;
+        padding: 10px;
+      }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
+      .toggle-switch {
+        display: flex;
+        align-items: center;
+        margin-top: 15px;
+        cursor: pointer;
+      }
 
-            to {
-                opacity: 1;
-            }
-        }
+      .toggle-switch input {
+        display: none;
+      }
+
+      .toggle-slider {
+        width: 40px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        position: relative;
+        transition: background 0.3s ease-in-out;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background: var(--primary-color);
+      }
+
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(20px);
+      }
+
+      .refresh-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.30);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 999;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(
+          45deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        padding: 4px;
+        font-size: 14px;
+        text-align: center;
+        z-index: 10;
+        animation: fadeIn 1.5s ease-in-out forwards;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
+    <div class="header">FIBER - G-09-2024</div>
 
-    <div class="header">FIBER</div>
+    <div class="map-tabs">
+      <div class="tab active" onclick="changeMap('map1', this)">🌍 Cover</div>
+      <div class="tab" onclick="changeMap('map2', this)">📊 Cover Change</div>
+      <div class="tab" onclick="changeMap('map3', this)">🌳 Type</div>
+    </div>
 
-    <div class="map-container">
-        <arcgis-embedded-map style="height:100vh;width:100vw;" item-id="0b3855ebdafc4738b7dc83f34f130186" theme="light"
-            portal-url="https://www.arcgis.com">
-        </arcgis-embedded-map>
+    <div class="map-container" id="map1">
+      <arcgis-embedded-map
+        style="height: 100vh; width: 100vw"
+        item-id="0b3855ebdafc4738b7dc83f34f130186"
+        theme="light"
+        portal-url="https://www.arcgis.com"
+      >
+      </arcgis-embedded-map>
+    </div>
+
+    <div class="map-container" id="map2">
+      <arcgis-embedded-map
+        style="height: 100vh; width: 100vw"
+        item-id="24824c133b0644c39451608ee7df8711"
+        theme="light"
+        portal-url="https://www.arcgis.com"
+      >
+      </arcgis-embedded-map>
+    </div>
+
+    <div class="map-container" id="map3">
+      <arcgis-embedded-map
+        style="height: 100vh; width: 100vw"
+        item-id="4e58b292ff394f0894bc508a5849f89f"
+        theme="light"
+        portal-url="https://www.arcgis.com"
+      >
+      </arcgis-embedded-map>
     </div>
 
     <div class="sidebar">
-        <h3>🌍 Forest Data Overview</h3>
-        <p>
-            This real-time geospatial map displays <b>global forest coverage</b> using <b>blockchain-secured data</b>
-            for accuracy and transparency.
-        </p>
+      <h3>🌍 Forest Data Overview</h3>
+      <p>
+        This real-time geospatial map displays
+        <b>global forest coverage</b> using <b>blockchain-secured data</b> for
+        accuracy and transparency.
+      </p>
 
-        <select>
-            <option>🌎 Global Overview</option>
-            <option>🌲 North Europe</option>
-            <option>🌿 Central Europe</option>
-            <option>🌾 South Europe</option>
-        </select>
+      <select>
+        <option>🌎 Global Overview</option>
+        <option>🌲 North Europe</option>
+        <option>🌿 Central Europe</option>
+        <option>🌾 South Europe</option>
+      </select>
 
-        <div class="live-data" id="liveDataBox">
-            ⏳ Fetching blockchain updates...
+      <div class="live-data" id="liveDataBox">
+        ⏳ Fetching blockchain updates...
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-item">
+          <div class="accordion-header">🔗 Why Blockchain?</div>
+          <div class="accordion-content">
+            Blockchain ensures that <b>environmental data remains immutable</b>,
+            transparent, and verifiable for all stakeholders.
+          </div>
         </div>
 
-        <div class="accordion">
-            <div class="accordion-item">
-                <div class="accordion-header">🔗 Why Blockchain?</div>
-                <div class="accordion-content">
-                    Blockchain ensures that <b>environmental data remains immutable</b>, transparent, and verifiable for
-                    all stakeholders.
-                </div>
-            </div>
-
-            <div class="accordion-item">
-                <div class="accordion-header">📡 Data Collection</div>
-                <div class="accordion-content">
-                    We integrate <b>satellite imagery, drone mapping, and IoT sensors</b> to provide the most accurate
-                    insights into deforestation.
-                </div>
-            </div>
-
-            <div class="accordion-item">
-                <div class="accordion-header">🌱 How You Can Help</div>
-                <div class="accordion-content">
-                    - Contribute <b>local environmental data</b> to the blockchain
-                    - Support <b>reforestation projects</b>
-                    - Stay informed and share findings
-                </div>
-            </div>
+        <div class="accordion-item">
+          <div class="accordion-header">📡 Data Collection</div>
+          <div class="accordion-content">
+            We integrate
+            <b>satellite imagery, drone mapping, and IoT sensors</b> to provide
+            the most accurate insights into deforestation.
+          </div>
         </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header">🌱 How You Can Help</div>
+          <div class="accordion-content">
+            - Contribute <b>local environmental data</b> to the blockchain<br />
+            - Support <b>reforestation projects</b><br />
+            - Stay informed and share findings
+          </div>
+        </div>
+
+        <div class="toggle-switch">
+          <input type="checkbox" id="autoRefreshToggle" />
+          <label for="autoRefreshToggle" class="toggle-slider"></label>
+          <span>&nbsp; Auto Refresh</span>
+        </div>
+      </div>
     </div>
 
+    <div class="refresh-overlay" id="refreshOverlay"></div>
+
     <div class="footer">
-        &copy; 2025 FIBER | <b>Securing environmental data with blockchain</b>
+      &copy; 2025 FIBER | <b>Securing environmental data with blockchain</b>
     </div>
 
     <script>
-        document.querySelectorAll(".accordion-header").forEach(header => {
+      const liveDataBox = document.getElementById("liveDataBox");
+      const fakeData = [
+        "🔥 Deforestation detected",
+        "🌱 Reforestation funded",
+        "📡 New satellite data updated",
+        "🔗 Blockchain validation completed",
+      ];
+
+       document.querySelectorAll(".accordion-header").forEach((header) => {
             header.addEventListener("click", function () {
                 this.parentElement.classList.toggle("active");
             });
         });
 
-        const liveDataBox = document.getElementById("liveDataBox");
-        const fakeData = ["🔥 Deforestation detected", "🌱 Reforestation funded", "📡 New satellite data updated", "🔗 Blockchain validation completed"];
-        setInterval(() => { liveDataBox.innerHTML = fakeData[Math.floor(Math.random() * fakeData.length)]; }, 3000);
+      setInterval(() => {
+        liveDataBox.innerHTML =
+          fakeData[Math.floor(Math.random() * fakeData.length)];
+      }, 3000);
+
+      function changeMap(mapId, element) {
+        document
+          .querySelectorAll(".map-container")
+          .forEach((map) => (map.style.display = "none"));
+        document.getElementById(mapId).style.display = "block";
+
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        element.classList.add("active");
+      }
+
+      setInterval(() => {
+        if (document.getElementById("autoRefreshToggle").checked) {
+          document.getElementById("refreshOverlay").style.opacity = "1";
+          setTimeout(() => {
+            document.getElementById("refreshOverlay").style.opacity = "0";
+          }, 500);
+        }
+      }, 5000);
     </script>
-
-</body>
-
+  </body>
 </html>
